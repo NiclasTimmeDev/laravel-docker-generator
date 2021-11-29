@@ -1,0 +1,20 @@
+{
+  "name": "docker_generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "generate": "node app.js"
+  },
+  "keywords": [],
+  "author": "Niclas Timm",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.0.0",
+    "fs-extra": "^10.0.0",
+    "inquirer": "^8.2.0",
+    "js-yaml": "^4.1.0",
+    "yaml": "^1.10.2"
+  }
+}

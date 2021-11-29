@@ -1,0 +1,80 @@
+version: '3'
+services:
+  app:
+    build:
+      context: './'
+      dockerfile: Dockerfile
+    ports:
+      - '8000:8000'
+    volumes:
+      - './:/var/www/html'
+    restart: unless-stopped
+    networks:
+      - editor
+    environment:
+      XDEBUG_CONFIG: 'client_host=host.docker.internal'
+      HOST: 0.0.0.0
+    depends_on:
+      - database
+      - redis
+
+  # Database
+  database:
+    image: 'mysql:8.0'
+    ports:
+      - '3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    restart: unless-stopped
+    volumes:
+      - 'replace_by_new_mysql_volume_name:/var/lib/mysql'
+    networks:
+      - editor
+
+  # PhpMyAdmin
+  phpmyadmin:
+    depends_on:
+      - database
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - '5005:80'
+    environment:
+      PMA_HOST: database
+      MYSQL_ROOT_PASSWORD: password
+    restart: unless-stopped
+    networks:
+      - editor
+
+  # Redis.
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    volumes:
+      - 'replace_by_new_redis_volume_name:/data'
+    restart: unless-stopped
+    networks:
+      - editor
+
+  # Mailhog for email testing.
+  mailhog_app:
+    container_name: mailhog_app
+    image: mailhog/mailhog
+    logging:
+      driver: 'none'
+    ports:
+      - 1025:1025
+      - 8025:8025
+    networks:
+      - editor
+
+# Network.
+networks:
+  editor:
+    driver: bridge
+
+volumes: {}
